@@ -20,15 +20,7 @@
 #define BUF_MAX_LEN             1024
 #define BUF_HEAD_LEN    4
 #define BUF_MAX 1024*32
-/*
-#define SRV_PORT 65103
-#define CLI_PORT 3389
-#define CLI_IP "168.3.24.103"
 
-#define SRV_PORT 65044
-#define CLI_PORT 3389
-#define CLI_IP "168.3.24.44"
-*/
 #define SRV_PORT 65184
 #define CLI_PORT 8666
 #define CLI_IP "168.2.6.84"
@@ -43,7 +35,7 @@ int tcp_send(int socket_fd, char *buf, int len);
 void tcp_close(int socket_fd);
 
 /*****************************************************
-	ÍøÂçÍ¨Ñ¶º¯Êı
+	ç½‘ç»œé€šè®¯å‡½æ•°
 *****************************************************/
 static int _createsocket()
 {
@@ -141,12 +133,12 @@ int tcp_accept(int socket_fd)
 	return client_fd;
 }
 
-/*·¢ËÍÊı¾İ*/
+/*å‘é€æ•°æ®*/
 int tcp_send(int socket_fd, char *buf, int len)
 {
 	int rtn;
 
-	/*·¢ËÍ±¨ÎÄ*/
+	/*å‘é€æŠ¥æ–‡*/
 	rtn = send(socket_fd, buf, len, 0);
 	if(rtn < 0)
 	{
@@ -157,7 +149,7 @@ int tcp_send(int socket_fd, char *buf, int len)
 	return rtn;
 }
 
-/*½ÓÊÕÊı¾İ*/
+/*æ¥æ”¶æ•°æ®*/
 int tcp_recv(int socket_fd, char *buf, int len)
 {
 	int rtn;
@@ -181,7 +173,7 @@ void tcp_close(int socket_fd)
 }
 
 /*****************************************************
-	ĞÅºÅ´¦Àíº¯Êı
+	ä¿¡å·å¤„ç†å‡½æ•°
 *****************************************************/
 void sig_chld()
 {
@@ -205,7 +197,7 @@ void sig_term()
 }
 
 /*****************************************************
-	Í¨Ñ¶×Óº¯Êı
+	é€šè®¯å­å‡½æ•°
 *****************************************************/
 void TransferData(int clit_fd, int proxy_fd)
 {
@@ -236,7 +228,7 @@ void TransferData(int clit_fd, int proxy_fd)
 
 	while(1)
 	{
-		/*Ìí¼ÓÎÄ¼şÃèÊö·ûµ½fd_set*/
+		/*æ·»åŠ æ–‡ä»¶æè¿°ç¬¦åˆ°fd_set*/
 		FD_SET(0, &read_fds);
 		FD_SET(0, &write_fds);
 		FD_SET(proxy_fd, &read_fds);
@@ -373,7 +365,7 @@ void TransferData(int clit_fd, int proxy_fd)
 }
 
 /*****************************************************
-	Í¨Ñ¶×ÓÏß³Ì
+	é€šè®¯å­çº¿ç¨‹
 *****************************************************/
 struct threadstu {int serv_fd;char serv_IP[32];int serv_port;int proxy_fd;int clit_fd;int clit_port;long id;};
 
@@ -388,7 +380,7 @@ void *threadfunc(void *parm) {
 	sprintf(prts,"thread id=[%ld] cnt=[%d] clifd[%d] port[%d] start",stu.id,thread_cnt,stu.clit_fd,stu.clit_port);
 	perror(prts);
 
-	/*ºöÂÔSIGPIPEĞÅºÅ*/
+	/*å¿½ç•¥SIGPIPEä¿¡å·*/
 	signal(SIGPIPE, SIG_IGN);
 
 	/* tcp_close(stu.serv_fd); */
@@ -416,7 +408,7 @@ void *threadfunc(void *parm) {
 }
 
 /*****************************************************
-	Ö÷º¯Êı
+	ä¸»å‡½æ•°
 *****************************************************/
 void main(int argc, char *argv[])
 {
@@ -451,7 +443,7 @@ void main(int argc, char *argv[])
 	strcpy(serv_IP, CLI_IP);
 	serv_port = CLI_PORT;
 
-	/* ½ø³ÌÓÉ²Ù×÷ÏµÍ³¹ÜÀí */
+	/* è¿›ç¨‹ç”±æ“ä½œç³»ç»Ÿç®¡ç† */
 	if((pid = fork()) < 0)
 	{
 		perror("fork error");
@@ -468,14 +460,14 @@ void main(int argc, char *argv[])
 		exit(1);
 	}
 
-	/*¹Ø±ÕËùÓĞÎÄ¼şÃèÊö·û*/
+	/*å…³é—­æ‰€æœ‰æ–‡ä»¶æè¿°ç¬¦*/
 	for(fd=0,fdtablesize=getdtablesize();fd<fdtablesize;fd++)
 	{
 		close(fd);
 	}
 
-	/*ÖØ¶¨Ïò±ê×¼Êä³öºÍ±ê×¼´íÎóÊä³ö*/
-	sprintf(prts,"/home/wb/wb06/cx/cx/xy/xy.%d.err",SRV_PORT);
+	/*é‡å®šå‘æ ‡å‡†è¾“å‡ºå’Œæ ‡å‡†é”™è¯¯è¾“å‡º*/
+	sprintf(prts,"xy.%d.err",SRV_PORT);
 	error = open(prts, O_WRONLY|O_CREAT, 0600);
 	/*error = open("/dev/null", O_WRONLY, 0600);*/
 	if(dup2(error, 2) == -1)
@@ -486,7 +478,7 @@ void main(int argc, char *argv[])
 	close(error);
 
 
-	/* out = open("/home/wb/wb06/cx/cx/xy/xy.log", O_WRONLY|O_CREAT, 0600);*/
+	/* out = open("xy.log", O_WRONLY|O_CREAT, 0600);*/
 	out = open("/dev/null", O_WRONLY|O_CREAT, 0600); 
 	if(dup2(out, 1) == -1)
 	{
@@ -497,25 +489,25 @@ void main(int argc, char *argv[])
 
 	pid = 0;
 
-	/*´¦ÀíSIGTERMĞÅºÅ*/
+	/*å¤„ç†SIGTERMä¿¡å·*/
 	signal(SIGTERM, sig_term);
 
-	/*ºöÂÔSIGCHLDĞÅºÅ*/
+	/*å¿½ç•¥SIGCHLDä¿¡å·*/
 	signal(SIGCHLD, SIG_IGN);
 
-	/*ºöÂÔSIGPIPEĞÅºÅ*/
+	/*å¿½ç•¥SIGPIPEä¿¡å·*/
 	signal(SIGPIPE, SIG_IGN);
 
-	/*ºöÂÔSIGTTOUĞÅºÅ*/
+	/*å¿½ç•¥SIGTTOUä¿¡å·*/
 	signal(SIGTTOU,SIG_IGN);
 
-	/*ºöÂÔSIGTTINĞÅºÅ*/
+	/*å¿½ç•¥SIGTTINä¿¡å·*/
 	signal(SIGTTIN,SIG_IGN);
 
-	/*ºöÂÔSIGTSTPĞÅºÅ*/
+	/*å¿½ç•¥SIGTSTPä¿¡å·*/
 	signal(SIGTSTP,SIG_IGN);
 
-	/*ºöÂÔSIGHUPĞÅºÅ*/
+	/*å¿½ç•¥SIGHUPä¿¡å·*/
 	signal(SIGHUP,SIG_IGN);
 
 	printf("proxy_port:[%d] serv:[%s:%d]\n", proxy_port, serv_IP, serv_port);
@@ -528,7 +520,7 @@ void main(int argc, char *argv[])
 
 	printf("server socketfd:[%d]\n", serv_fd);
 
-	/** ¿ªÊ¼¼àÌı **/
+	/** å¼€å§‹ç›‘å¬ **/
 
 	while(1)
 	{
@@ -561,25 +553,25 @@ void main(int argc, char *argv[])
 			tcp_close(clit_fd);
 		}
 
-		/*ºöÂÔSIGCHLDĞÅºÅ£¬·ÀÖ¹½©ËÀ½ø³Ì*/
+		/*å¿½ç•¥SIGCHLDä¿¡å·ï¼Œé˜²æ­¢åƒµæ­»è¿›ç¨‹*/
 		signal(SIGCHLD, SIG_IGN);
 
-		/*´¦ÀíSIGTERMĞÅºÅ*/
+		/*å¤„ç†SIGTERMä¿¡å·*/
 		signal(SIGTERM, sig_term);
 
-		/*ºöÂÔSIGPIPEĞÅºÅ*/
+		/*å¿½ç•¥SIGPIPEä¿¡å·*/
 		signal(SIGPIPE, SIG_IGN);
 
-		/*ºöÂÔSIGTTOUĞÅºÅ*/
+		/*å¿½ç•¥SIGTTOUä¿¡å·*/
 		signal(SIGTTOU,SIG_IGN);
 
-		/*ºöÂÔSIGTTINĞÅºÅ*/
+		/*å¿½ç•¥SIGTTINä¿¡å·*/
 		signal(SIGTTIN,SIG_IGN);
 
-		/*ºöÂÔSIGTSTPĞÅºÅ*/
+		/*å¿½ç•¥SIGTSTPä¿¡å·*/
 		signal(SIGTSTP,SIG_IGN);
 
-		/*ºöÂÔSIGHUPĞÅºÅ*/
+		/*å¿½ç•¥SIGHUPä¿¡å·*/
 		signal(SIGHUP,SIG_IGN);
 	} /* end while */
 }
