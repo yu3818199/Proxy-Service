@@ -1,3 +1,11 @@
+/*****************************************************
+   Proxy for AIX
+
+   Written by yuqiancheng
+   
+   @2019
+
+*****************************************************/
 #include <signal.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -35,7 +43,7 @@ int tcp_send(int socket_fd, char *buf, int len);
 void tcp_close(int socket_fd);
 
 /*****************************************************
-	网络通讯函数
+	Network Communication Function
 *****************************************************/
 static int _createsocket()
 {
@@ -133,12 +141,11 @@ int tcp_accept(int socket_fd)
 	return client_fd;
 }
 
-/*发送数据*/
+/* Send Data Function */
 int tcp_send(int socket_fd, char *buf, int len)
 {
 	int rtn;
 
-	/*发送报文*/
 	rtn = send(socket_fd, buf, len, 0);
 	if(rtn < 0)
 	{
@@ -149,7 +156,7 @@ int tcp_send(int socket_fd, char *buf, int len)
 	return rtn;
 }
 
-/*接收数据*/
+/* Receiving data function */
 int tcp_recv(int socket_fd, char *buf, int len)
 {
 	int rtn;
@@ -173,7 +180,7 @@ void tcp_close(int socket_fd)
 }
 
 /*****************************************************
-	信号处理函数
+	Signal Processing Function
 *****************************************************/
 void sig_chld()
 {
@@ -197,7 +204,7 @@ void sig_term()
 }
 
 /*****************************************************
-	通讯子函数
+	Communication Function
 *****************************************************/
 void TransferData(int clit_fd, int proxy_fd)
 {
@@ -228,7 +235,6 @@ void TransferData(int clit_fd, int proxy_fd)
 
 	while(1)
 	{
-		/*添加文件描述符到fd_set*/
 		FD_SET(0, &read_fds);
 		FD_SET(0, &write_fds);
 		FD_SET(proxy_fd, &read_fds);
@@ -365,7 +371,7 @@ void TransferData(int clit_fd, int proxy_fd)
 }
 
 /*****************************************************
-	通讯子线程
+	Communication Subthread
 *****************************************************/
 struct threadstu {int serv_fd;char serv_IP[32];int serv_port;int proxy_fd;int clit_fd;int clit_port;long id;};
 
@@ -408,7 +414,7 @@ void *threadfunc(void *parm) {
 }
 
 /*****************************************************
-	主函数
+	Primary Entry Function
 *****************************************************/
 void main(int argc, char *argv[])
 {
@@ -443,7 +449,7 @@ void main(int argc, char *argv[])
 	strcpy(serv_IP, CLI_IP);
 	serv_port = CLI_PORT;
 
-	/* 进程由操作系统管理 */
+	/* Processes are managed by the operating system */
 	if((pid = fork()) < 0)
 	{
 		perror("fork error");
@@ -460,13 +466,13 @@ void main(int argc, char *argv[])
 		exit(1);
 	}
 
-	/*关闭所有文件描述符*/
+	/*Close all file descriptors*/
 	for(fd=0,fdtablesize=getdtablesize();fd<fdtablesize;fd++)
 	{
 		close(fd);
 	}
 
-	/*重定向标准输出和标准错误输出*/
+	/*Redirecting Standard Output and Standard Error Output*/
 	sprintf(prts,"xy.%d.err",SRV_PORT);
 	error = open(prts, O_WRONLY|O_CREAT, 0600);
 	/*error = open("/dev/null", O_WRONLY, 0600);*/
@@ -489,25 +495,19 @@ void main(int argc, char *argv[])
 
 	pid = 0;
 
-	/*处理SIGTERM信号*/
+	/* Ignore ALL signal */
 	signal(SIGTERM, sig_term);
 
-	/*忽略SIGCHLD信号*/
 	signal(SIGCHLD, SIG_IGN);
 
-	/*忽略SIGPIPE信号*/
 	signal(SIGPIPE, SIG_IGN);
 
-	/*忽略SIGTTOU信号*/
 	signal(SIGTTOU,SIG_IGN);
 
-	/*忽略SIGTTIN信号*/
 	signal(SIGTTIN,SIG_IGN);
 
-	/*忽略SIGTSTP信号*/
 	signal(SIGTSTP,SIG_IGN);
 
-	/*忽略SIGHUP信号*/
 	signal(SIGHUP,SIG_IGN);
 
 	printf("proxy_port:[%d] serv:[%s:%d]\n", proxy_port, serv_IP, serv_port);
@@ -520,7 +520,7 @@ void main(int argc, char *argv[])
 
 	printf("server socketfd:[%d]\n", serv_fd);
 
-	/** 开始监听 **/
+	/** Start receiving network data **/
 
 	while(1)
 	{
@@ -553,25 +553,19 @@ void main(int argc, char *argv[])
 			tcp_close(clit_fd);
 		}
 
-		/*忽略SIGCHLD信号，防止僵死进程*/
+		/* Ignore ALL signal */
 		signal(SIGCHLD, SIG_IGN);
 
-		/*处理SIGTERM信号*/
 		signal(SIGTERM, sig_term);
 
-		/*忽略SIGPIPE信号*/
 		signal(SIGPIPE, SIG_IGN);
 
-		/*忽略SIGTTOU信号*/
 		signal(SIGTTOU,SIG_IGN);
 
-		/*忽略SIGTTIN信号*/
 		signal(SIGTTIN,SIG_IGN);
 
-		/*忽略SIGTSTP信号*/
 		signal(SIGTSTP,SIG_IGN);
 
-		/*忽略SIGHUP信号*/
 		signal(SIGHUP,SIG_IGN);
 	} /* end while */
 }
