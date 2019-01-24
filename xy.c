@@ -4,6 +4,7 @@
    Written by yuqiancheng
    
    @2019
+   function
 
 *****************************************************/
 #include <signal.h>
