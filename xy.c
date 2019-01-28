@@ -29,9 +29,12 @@
 #define BUF_HEAD_LEN    4
 #define BUF_MAX 1024*32
 
+/* Receiving port */
 #define SRV_PORT 65184
+/* Target ports and IP */
 #define CLI_PORT 8666
 #define CLI_IP "168.2.6.84"
+/* Accessible IP */
 #define CLI_IPS "168.3.26.112 168.5.130.188"
 
 static int serv_fd;
